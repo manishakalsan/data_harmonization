@@ -1,17 +1,6 @@
 # Omics metadata + data harmonization: a reproducible worked example
 
-Three single-cell PBMC "studies" that disagree on column names, vocabularies,
-age formats, chemistries, cell-type granularity and gene identifiers are turned
-into one validated, ontology-mapped, integrated AnnData object — with every
-decision logged and every unresolvable item sent to a curator queue instead of
-being guessed.
 
-**The data are simulated on purpose.** Each problem is planted, so you can check
-that the pipeline catches it. The ontologies are real (pinned CL, UBERON, MONDO,
-EFO releases), so mapping, ambiguity and branch checks behave exactly as they
-would on public data. Section 6 shows how to swap in real datasets.
-
----
 
 ## 1. Run it
 
