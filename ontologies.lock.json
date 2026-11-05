@@ -1,0 +1,26 @@
+{
+  "CL": {
+    "file": "cl-basic.obo",
+    "url": "https://github.com/obophenotype/cell-ontology/releases/download/v2026-06-08/cl-basic.obo",
+    "data_version": "cl/releases/2026-06-08",
+    "sha256": "73996c6349283e7a8cbd8183367a1cb810d0077e9c291ae0c72bd31e869f8c1c"
+  },
+  "UBERON": {
+    "file": "uberon-basic.obo",
+    "url": "https://github.com/obophenotype/uberon/releases/download/v2026-10-01/uberon-basic.obo",
+    "data_version": "uberon/releases/2026-10-01",
+    "sha256": "5e1eff802a4d99f7a072f6cd239f50cffdb70aec2b11e33edf00e66746a0a75b"
+  },
+  "MONDO": {
+    "file": "mondo.obo",
+    "url": "https://github.com/monarch-initiative/mondo/releases/download/v2026-11-03/mondo.obo",
+    "data_version": "releases/2026-11-03",
+    "sha256": "b5a3d848578694601dffb1c2866798d4f6f4b4a12c315030c4d4c62ffe4e7e22"
+  },
+  "EFO": {
+    "file": "efo.obo",
+    "url": "https://github.com/EBISPOT/efo/releases/download/v3.95.0/efo.obo",
+    "data_version": "efo/releases/v3.95.0",
+    "sha256": "062edb95420a0556affa61e252a4ef316cfba4bc42dd10f01ae8b90e7434ad14"
+  }
+}

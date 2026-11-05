@@ -1,0 +1,57 @@
+# Mapping memory: curator decisions for free-text values, reused across studies.
+# Keys are NORMALIZED text (lower-case, trimmed, whitespace collapsed).
+# Lookup order in 02_harmonize_metadata.py:
+#   1. this file (status: curated_memory)
+#   2. exact label / EXACT synonym in the allowed ontology branch (status: auto_exact)
+#   3. otherwise UNMAPPED -> goes to the curator queue, never guessed.
+# Every chosen ID is still validated against the pinned ontology
+# (exists, not obsolete, inside the field's branch).
+
+sex:
+  m: PATO:0000384
+  male: PATO:0000384
+  f: PATO:0000383
+  female: PATO:0000383
+
+tissue:
+  pbmc: UBERON:0000178             # PBMCs are a suspension FROM blood; tissue = blood
+  peripheral blood: UBERON:0000178
+  # "blood" is deliberately absent: it should resolve via an exact label match.
+
+disease:
+  healthy: PATO:0000461
+  control: PATO:0000461
+  # "SLE" is deliberately absent: it is an EXACT synonym of MONDO:0007915 only,
+  # so it auto-maps. "Lupus" is also absent, and it does NOT auto-map: in the
+  # pinned MONDO it is an EXACT synonym of two terms (lupus erythematosus and
+  # systemic lupus erythematosus), so it goes to the curator queue as AMBIGUOUS.
+
+assay:
+  10x v2 3': EFO:0009899
+  chromium single cell 3' v3: EFO:0009922
+  10x 5' v1: EFO:0011025
+
+# Author cell-type labels -> Cell Ontology, at the granularity the label supports.
+# "T cells" stays T cell; it is NOT upgraded to CD4 or CD8.
+cell_type:
+  cd4 t: CL:0000624
+  cd8 t: CL:0000625
+  b: CL:0000236
+  mono: CL:0000576
+  nk: CL:0000623
+  t cells: CL:0000084
+  b cells: CL:0000236
+  cd14+ monocytes: CL:0001054
+  nk cells: CL:0000623
+  tcell_c1: CL:0000084
+  bcell: CL:0000236
+  monocyte: CL:0000576
+  nkcell: CL:0000623
+
+# Harmonized (cross-study) cell-type level: each mapped term is rolled UP to
+# the first of these that is itself or an is_a ancestor. Finer labels are kept.
+cell_type_rollup:
+  - CL:0000084   # T cell
+  - CL:0000236   # B cell
+  - CL:0000576   # monocyte
+  - CL:0000623   # natural killer cell
