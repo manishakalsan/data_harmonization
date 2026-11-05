@@ -1,0 +1,20 @@
+# Pinned ontology releases. Pinning matters: the same term ID can move in the
+# hierarchy (or become obsolete) between releases, which silently changes
+# validation results and "all descendants of X" queries.
+# 01_fetch_ontologies.py downloads each file, checks data-version, and writes
+# a lockfile with SHA-256 checksums.
+
+ontologies:
+  CL:
+    url: https://github.com/obophenotype/cell-ontology/releases/download/v2026-06-08/cl-basic.obo
+    expect_data_version: cl/releases/2026-06-08
+  UBERON:
+    url: https://github.com/obophenotype/uberon/releases/download/v2026-10-01/uberon-basic.obo
+    expect_data_version: uberon/releases/2026-10-01
+  MONDO:
+    url: https://github.com/monarch-initiative/mondo/releases/download/v2026-11-03/mondo.obo
+    expect_data_version: releases/2026-11-03
+  EFO:
+    # EFO also imports the PATO terms used here (sex, "normal").
+    url: https://github.com/EBISPOT/efo/releases/download/v3.95.0/efo.obo
+    expect_data_version: efo/releases/v3.95.0

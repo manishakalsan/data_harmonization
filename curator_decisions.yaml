@@ -1,0 +1,16 @@
+# Curator decisions for items that landed in the curator queue
+# (data/harmonized/curator_queue_initial.tsv). Same structure as
+# mapping_memory.yaml. Each entry needs a reason: this file is provenance.
+# Re-run with `02_harmonize_metadata.py --initial` to see the queue as it was
+# before these decisions.
+
+disease:
+  # AMBIGUOUS in MONDO (lupus erythematosus vs systemic lupus erythematosus).
+  # In a real dataset: read study B's methods / diagnostic criteria, or ask the
+  # submitter. Here the simulation design says SLE.
+  lupus: MONDO:0007915
+
+tissue:
+  # UNMAPPED. Tissue is blood; "frozen" is a preservation method and belongs in
+  # its own field (the target schema should gain `preservation_method`; see README).
+  pbmc, frozen: UBERON:0000178

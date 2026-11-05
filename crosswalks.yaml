@@ -1,0 +1,47 @@
+# Crosswalk: source column -> target field, per study.
+# Kept as reviewable config, not buried in code, so a curator can change a
+# mapping in a pull request and the change is versioned.
+#
+# Value-level mapping (free text -> ontology term) lives in mapping_memory.yaml.
+
+target_constants:
+  organism_ontology_term_id: NCBITaxon:9606
+  suspension_type: cell
+
+studies:
+  A:
+    samples_file: samples.csv
+    cells: {sample_col: SampleID, label_col: celltype}
+    gene_id_type: symbol
+    fields:
+      sample_id: SampleID
+      donor_id: Donor
+      sex: Sex
+      age: Age
+      tissue: Tissue
+      disease: Condition
+      assay: Chemistry
+  B:
+    samples_file: samples.csv
+    cells: {sample_col: sample_name, label_col: cell_type_original}
+    gene_id_type: ensembl_versioned
+    fields:
+      sample_id: sample_name
+      donor_id: individual
+      sex: gender
+      age: age_years
+      tissue: source
+      disease: disease_state
+      assay: protocol
+  C:
+    samples_file: samples.csv
+    cells: {sample_col: id, label_col: annotation}
+    gene_id_type: symbol_mixed      # current symbols + aliases + a previous symbol
+    fields:
+      sample_id: id
+      donor_id: patient
+      sex: sex
+      age: age
+      tissue: tissue
+      disease: diagnosis
+      assay: kit
