@@ -50,29 +50,7 @@ scripts/
 data/harmonized/          all outputs (see section 4)
 ```
 
-## 3. Planted problem → where it is caught
-
-| Planted problem | Caught by | Outcome in this run |
-| --- | --- | --- |
-| Different column names per study | `crosswalks.yaml`; script stops if a mapped column is missing | All 3 studies mapped to one schema |
-| Sex as `M`, `male`, `Female` | `mapping_memory.yaml` → PATO; schema enum | 12/12 mapped |
-| Age as `45y`, `52`, `40-50`, `adult` | `parse_age()` → min/max years, raw kept | `adult` kept as text, ages null, queued as COARSE — never turned into a number |
-| Tissue `PBMC` / `peripheral blood` | mapping memory → UBERON:0000178 *blood* (PBMC is a suspension *from* blood) | mapped |
-| Tissue `blood` | automatic exact-label match within UBERON anatomical entity branch | `auto_exact` |
-| Tissue `PBMC, frozen` | no memory, no exact match | **UNMAPPED → queue**; resolved in `curator_decisions.yaml` with a note that "frozen" belongs in a separate preservation field |
-| Disease `SLE` | exact synonym of MONDO:0007915, unique in branch | `auto_exact` |
-| Disease `Lupus` | exact synonym of **two** MONDO terms (MONDO:0004670 lupus erythematosus, MONDO:0007915 SLE) | **AMBIGUOUS → queue**; this was not planted on purpose — it is how the real MONDO release behaves, and the reason auto-matching needs a curator in the loop |
-| Three 10x chemistries in free text | mapping memory → EFO, validated under EFO:0010183 *single cell library construction* | 3 distinct EFO terms |
-| Author labels at different granularity (`CD4 T` vs `T cells`) | mapped to CL at the granularity stated, then rolled up via the real `is_a` hierarchy to {T cell, B cell, monocyte, NK cell} | `CD4 T` → CL:0000624 → harmonized T cell; `T cells` stays CL:0000084 (not upgraded) |
-| Study B: versioned Ensembl IDs | version stripped, matched on stable ID | 302/302 |
-| Study C: `CD16`, `CD20` aliases, `C10orf54` previous symbol | lookup order: Ensembl → symbol → previous symbol → alias; keys claimed by two genes are dropped as ambiguous | 2 alias + 1 previous-symbol rescues |
-| Study C: unmappable feature | unmapped, reported, removed | 1 feature dropped |
-| Study C: GAPDH not measured | genes intersected; union-with-zeros is **not** used (absent ≠ zero) | GAPDH dropped and listed in provenance |
-| Donor B_D02 declared female, genetically male | per-donor XIST vs RPS4Y1 | **SEX MISMATCH flagged; not auto-corrected** |
-| Study C contains only SLE donors | study × disease cross-tab, Cramér's V | V = 0.50; study C flagged as a single-disease batch |
-| Study-specific gene bias + capture efficiency | Harmony on `study_id`, evaluated before/after | see section 5 |
-
-## 4. Outputs (`data/harmonized/`)
+## 3. Outputs (`data/harmonized/`)
 
 | File | Use |
 | --- | --- |
@@ -116,45 +94,3 @@ What these numbers do **not** tell you:
   work use `scib-metrics` (iLISI, cLISI, kBET, graph connectivity, isolated
   label scores) and compare more than one method.
 
-## 6. Swapping in real data
-
-1. Pull public datasets, e.g. from CELLxGENE Census
-   (`cellxgene_census.get_anndata(...)`) for already-standardized data, or
-   GEO/ArrayExpress for raw submissions. The raw GEO route is the realistic
-   curation exercise: sample sheets in GEO are where messy metadata lives.
-2. Write one block per study in `crosswalks.yaml`.
-3. Run `02_harmonize_metadata.py --initial`, read `curator_queue_initial.tsv`,
-   and add decisions with reasons to `curator_decisions.yaml`.
-4. Replace `config/genes.tsv` with a full table built from a pinned GENCODE GTF
-   (gene_id, gene_name) plus HGNC aliases and previous symbols. The table here
-   covers 22 marker genes only; the 280 `SIMG…` genes are simulated.
-5. If studies can be re-quantified from FASTQ with one pipeline and reference
-   (e.g. nf-core/scrnaseq), do that first. Uniform reprocessing removes more
-   variation than any batch-correction method.
-
-## 7. What a production version would add
-
-- `preservation_method`, `development_stage_ontology_term_id` (HsapDv) and
-  `self_reported_ethnicity_ontology_term_id` (HANCESTRO) fields; the queued
-  `adult` age would map to a HsapDv stage.
-- Schema defined once in **LinkML**, generating the JSON Schema, Python classes
-  and docs.
-- **OAK (oaklib)** or **pronto** instead of `obo.py`, for full OBO/OWL support
-  and relations beyond `is_a`; **text2term** or embedding matching for fuzzy
-  suggestions with curator confirmation.
-- A scheduled job that re-validates all records when an ontology release
-  changes and lists newly obsolete terms with `replaced_by` candidates.
-- Tests: one per planted problem above, asserting the expected status.
-
-## 8. Platforms you will hear about in interviews
-
-| Platform / tool | What it is for | Practical notes |
-| --- | --- | --- |
-| CELLxGENE schema + `cellxgene-schema` validator | Standard for single-cell AnnData submissions | Required `obs` ontology columns; `cellxgene-schema validate file.h5ad` checks a file. Census provides harmonized data via API (TileDB-SOMA) |
-| HCA metadata standard + ingest | Atlas-scale, modular JSON Schemas | Spreadsheet templates generated from schemas; strong provenance model |
-| LinkML | Modeling language | One YAML model → JSON Schema, SQL, Python, docs |
-| OLS / Zooma / OAK / text2term | Ontology lookup and mapping | OLS for search and API, Zooma for curated text-to-term suggestions, OAK for programmatic access |
-| scanpy + harmonypy / scvi-tools / scib-metrics | Integration and evaluation (Python) | scVI/scANVI for larger, more complex batches; scib-metrics for benchmarking |
-| Seurat + harmony / sva (R) | Same in R | `RunHarmony()` on a Seurat object; `ComBat_seq()` for bulk RNA-seq counts |
-| Nextflow nf-core (scrnaseq, rnaseq) | Uniform reprocessing | Containerized, versioned pipelines; record pipeline release and parameters |
-| ISA tools, GA4GH (Phenopackets, DUO, DRS) | Multi-omics description, clinical data and access | Relevant when the repository holds controlled human data |
